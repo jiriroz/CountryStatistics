@@ -1,12 +1,37 @@
 import sqlite3
 import re
 import os
+import sys
 
-"""get all files *.txt - all are various country statistics
-process and save files' contents
-create a database and a table
-for each statistics create a new column in the db
-save all statistics into the database"""
+"""
+Command line arguments:
+all: gets all text files
+else: gets only the specified text file
+All text files are various country statistics.
+Process and save files' contents.
+Create a database and a table.
+For each statistics create a new column in the db,
+save all statistics into the database."""
+
+def getTextFiles(fileSpec):
+    ignore = ["dbinfo.txt"]
+    files = []
+    try:
+        alreadyStored = readFile("dbinfo.txt").split("\n")[:-1]
+        alreadyStored = map(lambda x: x+".txt",alreadyStored)
+        ignore += alreadyStored
+    except IOError:
+        open("dbinfo.txt","w").close()
+    allfiles = [f for f in os.listdir('.') if f.endswith('.txt')
+             and f not in ignore]
+    if fileSpec == "all":
+        files = allfiles
+    else:
+        if fileSpec in allfiles:
+            files = [fileSpec]
+        else:
+           raise IOError("File does not exist or was already stored.")
+    return files
 
 def readFile(fileName):
     file = open(fileName,'r')
@@ -22,19 +47,6 @@ def processData(data):
         data[x][1] = re.sub("[\$\s\,]", "", data[x][1])
         data[x][1] = float(data[x][1])
     return data
-
-files = [f for f in os.listdir('.') if f.endswith('.txt') and f != "dbinfo.txt"]
-
-processed = dict()
-
-for f in files:
-    data = readFile(f)
-    data = processData(data)
-    name = f[:-4]
-    processed[name] = data
-
-connection = sqlite3.connect("countries.db")
-cursor = connection.cursor()
 
 def createDatabase(cursor,columns):
     body = " ,"
@@ -69,21 +81,35 @@ def updateDatabase(cursor,processed):
                 print ("failed to update: ",stats,value,country)
                 print (e)
 
-cols = [x for x in processed]
-
-def updateDatabaseInfo():
+def updateDatabaseInfo(columns):
     file = open("dbinfo.txt","a")
-    for cname in cols:
+    for cname in columns:
         file.write(cname + "\n")
     file.close()
 
-#updateDatabaseInfo()
 
-createDatabase(cursor,cols)
+fileSpec = sys.argv[1]
+files = getTextFiles(fileSpec)
+
+processed = dict()
+
+for f in files:
+    data = readFile(f)
+    data = processData(data)
+    name = f[:-4]
+    processed[name] = data
+
+connection = sqlite3.connect("countries.db")
+cursor = connection.cursor()
+
+cols = [x for x in processed]
+
+updateDatabaseInfo(cols)
+
+"""Caution: Will delete the contents of the database."""
+#createDatabase(cursor,cols)
+
 updateDatabase(cursor,processed)
-
-cursor.execute("SELECT * from Countries")
-row = cursor.fetchone()
 
 connection.commit()
 connection.close()
