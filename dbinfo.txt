@@ -1,0 +1,15 @@
+Maternal_mortality_rate
+Population_growth_rate
+Death_rate
+Net_migration_rate
+Total_fertility_rate
+Life_expectancy_at_birth
+Health_expenditures
+People_width_HIVAIDS
+Children_under_5_underweight
+Obesity_rate
+Education_expenditures
+Youth_unemployment
+Infant_mortality_rate
+Birth_rate
+Population
