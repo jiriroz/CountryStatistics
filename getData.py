@@ -37,7 +37,7 @@ class GetData:
         self.window = tk.Tk()
         self.window.geometry("600x400")
         self.window.resizable(width=False, height=False)
-        self.window.title("Country Statistics")
+        self.window.title("World Factbook Statistics")
 
         countryX = 100
         countryY = 50
@@ -61,9 +61,7 @@ class GetData:
         for i in range(len(options)):
             listbox.insert(i+1,options[i])
 
-    #update current selection. Need this method and the button, because
-    #cannot select countries and parameters at once, when attempted,
-    #the other one gets unselected.
+    #update current selection
     def add(self):
         rows = self.countrySel.curselection()
         cols = self.parameterSel.curselection()
@@ -84,8 +82,8 @@ class GetData:
         xData,yData = self.query(rows,colX,colY)
         xLabel = self.columnsDisplay[self.selectedColumns[0]]
         yLabel = self.columnsDisplay[self.selectedColumns[1]]
+        self.clearSelection();
         self.plot(rows,xLabel,yLabel,xData,yData)
-        self.clearSelection()
 
     def query(self,rows,colX,colY):
         xData = self.getColumn(rows,colX)
@@ -105,20 +103,17 @@ class GetData:
         return result
 
     def plot(self,countries,xLabel,yLabel,xData,yData):
-        
         figure = plt.figure(1)
         plot = figure.add_subplot(111)
         plot.plot(xData,yData,marker='o',color='#0066cc',ls='None')
         plot.set_xlabel(xLabel)
         plot.set_ylabel(yLabel)
-        plot.set_title("") #what title?
+        plot.set_title(xLabel + " vs. " + yLabel)
 
         coords = zip(xData,yData)
-        #offset = ((coords[0][0]**2)/200, (coords[0][1]**2)/200)
         for i in range(len(countries)):
             if coords[i][0] != None and coords[i][1] != None:
                 plot.annotate(countries[i],xy=coords[i])
-
         plt.show()
 
 

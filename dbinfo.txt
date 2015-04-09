@@ -4,11 +4,12 @@ Death_rate
 Net_migration_rate
 Total_fertility_rate
 Life_expectancy_at_birth
+Education_expenditures
 Health_expenditures
 People_width_HIVAIDS
 Children_under_5_underweight
 Obesity_rate
-Education_expenditures
+GDP_per_capita
 Youth_unemployment
 Infant_mortality_rate
 Birth_rate

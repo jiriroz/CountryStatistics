@@ -6,31 +6,38 @@ import sys
 """
 Command line arguments:
 all: gets all text files
-else: gets only the specified text file
-All text files are various country statistics.
+file1.txt, file2.txt, ...: gets only specified files
+You can load any data text file from CIA World Factbook.
+For format see example files.
+
 Process and save files' contents.
 Create a database and a table.
 For each statistics create a new column in the db,
 save all statistics into the database."""
 
-def getTextFiles(fileSpec):
+def parseArguments():
+    args = []
+    i = 1
+    while True:
+        try:
+            args.append(sys.argv[i])
+        except IndexError:
+            break
+        i += 1
+    if len(args) == 0:
+        raise Exception("No command line arguments.")
+    return args
+
+
+def getTextFiles(fileNames):
     ignore = ["dbinfo.txt"]
     files = []
-    try:
-        alreadyStored = readFile("dbinfo.txt").split("\n")[:-1]
-        alreadyStored = map(lambda x: x+".txt",alreadyStored)
-        ignore += alreadyStored
-    except IOError:
-        open("dbinfo.txt","w").close()
     allfiles = [f for f in os.listdir('.') if f.endswith('.txt')
              and f not in ignore]
-    if fileSpec == "all":
+    if fileNames[0] == "-all":
         files = allfiles
     else:
-        if fileSpec in allfiles:
-            files = [fileSpec]
-        else:
-           raise IOError("File does not exist or was already stored.")
+        files = [f for f in fileNames if f in allfiles]
     return files
 
 def readFile(fileName):
@@ -81,16 +88,14 @@ def updateDatabase(cursor,processed):
                 print ("failed to update: ",stats,value,country)
                 print (e)
 
-def updateDatabaseInfo(columns):
-    file = open("dbinfo.txt","a")
+def createDatabaseInfo(columns):
+    file = open("dbinfo.txt","w")
     for cname in columns:
         file.write(cname + "\n")
     file.close()
 
-
-fileSpec = sys.argv[1]
-files = getTextFiles(fileSpec)
-
+arguments = parseArguments()
+files = getTextFiles(arguments)
 processed = dict()
 
 for f in files:
@@ -104,14 +109,12 @@ cursor = connection.cursor()
 
 cols = [x for x in processed]
 
-updateDatabaseInfo(cols)
+createDatabaseInfo(cols)
 
-"""Caution: Will delete the contents of the database."""
-#createDatabase(cursor,cols)
+createDatabase(cursor,cols)
 
 updateDatabase(cursor,processed)
 
 connection.commit()
 connection.close()
-
 
