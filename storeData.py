@@ -6,14 +6,18 @@ import sys
 """
 Command line arguments:
 all: gets all text files
-file1.txt, file2.txt, ...: gets only specified files
+file1.txt, file2.txt, ...: gets only the specified files.
+
 You can load any data text file from CIA World Factbook.
-For format see example files.
+For format see example files. It is a responsibility of the user
+to enter data with the correct format.
 
 Process and save files' contents.
 Create a database and a table.
 For each statistics create a new column in the db,
-save all statistics into the database."""
+save all statistics into the database.
+Use getData.py to visualize data using matplotlib.
+"""
 
 def parseArguments():
     args = []
